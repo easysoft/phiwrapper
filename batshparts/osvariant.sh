@@ -1,7 +1,6 @@
 
 if [ "x{echo(v.unames)}" = "x$kernel" ]
 then
-{println("fuck",v.pspath);}
 tboffset="{if(v.tboffset) batshoffset(v.tboffset)}"
 tbsize="{echo(v.tbsize || "")}"
 uzoffset="{if(v.uzoffset) batshoffset(v.uzoffset)}"

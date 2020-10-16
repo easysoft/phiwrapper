@@ -89,11 +89,13 @@ fi
 
 # extract ps things
 unzip $batsh $pspath'/*' -d extracting
-toybox mv extracting/$pspath {echo(config.psTarget)}
+toybox mkdir -p {echo(config.psTarget)}/
+toybox mv extracting/$pspath/* {echo(config.psTarget)}/
 
 # extract pi things
 unzip $batsh {echo(config.piPath)}'/*' -d extracting
-toybox mv extracting/{echo(config.piPath)} {echo(config.piTarget)}
+toybox mkdir -p {echo(config.piTarget)}/
+toybox mv extracting/{echo(config.piPath)}/* {echo(config.piTarget)}/
 
 $cmdline
 

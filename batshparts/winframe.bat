@@ -1,9 +1,9 @@
 
-@ECHO OFF
+: @ECHO OFF
 {if(config.prependHashbang) trawfile("hashbangdontpanic.bat")}
 
 : TODO: configurable
-ECHO "phiwrapper wrapped batsh at cmd"
+ECHO phiwrapper wrapped batsh at cmd
 
 {trawfile("winarchcheck.bat")}
 

@@ -8,7 +8,7 @@ phiwrapper可以通过batsh使得同一文件包含不同平台的二进制，�
 
 ## TODOs && WIPs
 
-- [ ] zip.js
+- [ ] zip.js -- zip.js 还没有实现，你需要手动打包code和bin目录的zip到build/build.zip
 - [ ] 支持命令行参数、完整的清理、提升权限...
 - [ ] 测试和自动化测试
 - [ ] x86 unix-like系统兼容
@@ -26,6 +26,12 @@ phiwrapper可以通过batsh使得同一文件包含不同平台的二进制，�
 需要nodejs
 
 ### 准备二进制文件
+
+准备phiwrapper的二进制到tools目录
+
+```
+git clone https://github.com/longyan/phiwrapper_binaries tools
+```
 
 自行准备需要的二进制放置于任意子目录
 

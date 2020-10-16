@@ -8,6 +8,7 @@ phiwrapper可以通过batsh使得同一文件包含不同平台的二进制，�
 
 ## TODOs && WIPs
 
+- [ ] zip.js
 - [ ] 支持命令行参数、完整的清理、提升权限...
 - [ ] 测试和自动化测试
 - [ ] x86 unix-like系统兼容

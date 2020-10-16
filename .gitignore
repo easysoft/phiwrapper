@@ -1,0 +1,10 @@
+
+# ps/pifiles in default
+bin/*
+code/*
+
+# build dir
+build/*
+
+# configuration
+config.js

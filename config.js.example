@@ -1,0 +1,45 @@
+// this is config file for wrapperwrapper
+// this file will be eval()'ed,
+// do strict injection check!
+
+// note: wsh object format:
+// a ={
+//  x: 1,
+//  y: 2,<-- comma here will cause error
+// }
+(function (){
+var config = {
+    // piPath: platform independent files path
+    piPath: "code",
+    // piTarget: platform independent files extract destnation
+    piTarget: ".",
+    // psTarget: platform specific files extract destnation
+    psTarget: "bin",
+    // psPaths: platform specific files path
+    psPaths:{
+        win_x86_64: "bin/win64",
+        //win_x86: "bin/win",
+        //linux_x86: "bin/linux",
+        linux_x86_64: "bin/linuxx64",
+        //linux_arm64: "bin/linuxaa64",
+        darwin_x86_64: "bin/mac"
+        //fbsd_x86_64: "bin/fbsdx64"
+    },
+    // command: command line to execute after extraction
+    command:{
+        win_:"bin\\php.exe -S 0.0.0.0:8088",
+        unixlike_:"bin/php -S 0.0.0.0:8088"
+    },
+    // requirePrivilege(WIP): should we request privilege
+    requirePrivilege: false,
+    // prependHashbang: prepend hashbang line at start,
+    // this will make wrapped file can be exec(3)'ed instant,
+    // also cause a warning in batch mode
+    prependHashbang: true,
+    // winTempDir: extract to specified windows tempdir
+    winTempDir: "%TMP%\\.phiw.%RANDOM%",
+    // winTempDir: extract to specified unix tempdir
+    nixTempDir: "`$tbtemp mktemp -d`"
+};
+return config;
+}())

@@ -1,0 +1,4 @@
+# these batsh parts should use strict CRLF to fit different interpreter
+*.bat eol=crlf
+*.batsh eol=crlf
+*.sh eol=lf

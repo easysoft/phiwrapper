@@ -4,4 +4,5 @@ type node >&- 2>&- || {
     exit 1
 }
 
-exec node wrapperwrapper.js
+node wrapperwrapper.js &&
+sh build/concat.bat

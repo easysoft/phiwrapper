@@ -1,11 +1,4 @@
 
-# ps/pifiles in default
-bin/*
-code/*
-
-# build dir
-build/*
-
 # bin tools dir
 tools
 

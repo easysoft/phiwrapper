@@ -6,5 +6,8 @@ code/*
 # build dir
 build/*
 
+# bin tools dir
+tools
+
 # configuration
 config.js

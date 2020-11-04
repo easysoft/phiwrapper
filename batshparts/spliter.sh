@@ -1,6 +1,6 @@
 
 # check if printf oct escape work
-if [ x"`printf '\062'`" = "x1" ]
+if [ x`printf '\061'` = "x1" ]
 then
 p()
 \{

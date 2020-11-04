@@ -1,5 +1,5 @@
 
-if [ "x{echo(v.unames)}" = "x$kernel" ]
+if [ "x{echo(v.unames)}" = x$\{kernel\} ]
 then
 tboffset="{if(v.tboffset) batshoffset(v.tboffset)}"
 tbsize="{echo(v.tbsize || "")}"

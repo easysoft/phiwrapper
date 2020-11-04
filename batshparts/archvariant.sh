@@ -3,7 +3,7 @@ if {
 (function()\{
 var l = [];
 for(var i=0; i<unamemmap[v[0]].length; i++)
-    l.push('[ "x$arch" == "x' + unamemmap[v[0]][i] + '" ]');
+    l.push('[ x$\{arch\} = "x' + unamemmap[v[0]][i] + '" ]');
 echo(l.join(" || "));
 \})()
 }

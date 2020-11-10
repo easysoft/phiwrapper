@@ -240,13 +240,11 @@ if(typeof WScript !== 'undefined'){
     exec = child_process.execSync;
     concat = function(files, dest){
         println("concatenating batsh and bins");
-        var deststream = fs.createWriteStream(dest, {mode: 493/*0o755*/});
+        var destf = fs.openSync(dest, "w", 493/*0o755*/);
         files.map(function(item){
-            var srcstream = fs.createReadStream(item);
-            srcstream.pipe(deststream);
-            srcstream.close();
+            fs.writeSync(destf, fs.readFileSync(item));
         });
-        deststream.close();
+        fs.closeSync(destf);
         println(dest + " generated");
     };
 }else{
@@ -409,21 +407,28 @@ for (var sk in shvarsmap){
 }
 
 var splitermap = [
-    ["x86_64", "linux", "elf0x64"],
-    ["x86_64", "fbsd", "elf9x64"],
-    ["arm64", "fbsd", "elf0aa64"],
-    ["arm64", "linux", "elf9aa64"],
-    ["x86_64", "darwin", "darwin"]
+    /* arch, os, tools/spliter.?.sh, funcname */
+    ["x86_64", "linux", "elfx64", "elf0x64"],
+    ["x86_64", "fbsd", "elfx64", "elf9x64"],
+    ["arm64", "fbsd", "elfaa64", "elf9aa64"],
+    ["arm64", "linux", "elfaa64", "elf0aa64"],
+    ["x86_64", "darwin", "darwin", "darwin"]
 ];
+var spliterfiles = [];
 var usespliters = [];
 
 splitermap.map(function(sv){
     if ( shvars[sv[0]] && shvars[sv[0]][sv[1]] &&
-        filesize("tools/spliter." + sv[2] + ".sh") >0 &&
-        !(usespliters.indexOf("tools/spliter." + sv[2] + ".sh") >0))
-    {
-        println("use","tools/spliter." + sv[2] + ".sh");
-        usespliters.push("tools/spliter." + sv[2] + ".sh");
+        filesize("tools/spliter." + sv[2] + ".sh") >0 ){
+        usespliters.push({
+            unames: shvarsmap[sv[1]].unames,
+            unamem: unamemmap[sv[0]],
+            funcname: sv[3]
+        });
+        if(!(usespliters.indexOf("tools/spliter." + sv[2] + ".sh") >0)){
+            println("use","tools/spliter." + sv[2] + ".sh");
+            spliterfiles.push("tools/spliter." + sv[2] + ".sh");
+        }
     }
 });
 
@@ -441,8 +446,8 @@ zip.zip("build/build.zip",
         .map(function(x){return config.psPaths[x] + "/*";})
         .concat([config.piPath + "/*"])
 );
-println("make concat script");
 writetext("build/heredoctail", "\nIAMEND\n"); // TODO: changable
+
 var filelist = ["build/wrapper.batsh"]
     .concat(binused.map(function(x){return "tools/"+x;}))
     .concat(["build/build.zip"])

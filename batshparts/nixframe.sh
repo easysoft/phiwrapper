@@ -52,7 +52,7 @@ then
         dd if=$1 of=$2 $ddskip=$3 bs=1 count=$4
         chmod 0755 $2
     \}
-{if(usespliters.length>0) trawfile("usespliter.sh")}
+{if(usespliters.length>0) file("usespliter.sh")}
 else
     echo "cannot extract self: dd and spliter not provided or not usable" >&2
     exit 1
@@ -79,7 +79,7 @@ cd $phiwtemp || \{
 \}
 
 # extract unzip
-if [ x$\{uzoffset\} != "x"] && [ x$\{uzsize\} != "x"]
+if [ x$\{uzoffset\} != "x" ] && [ x$\{uzsize\} != "x" ]
 then
     partcp $\{batsh\} bin/unzip $\{uzoffset\} $\{uzsize\}
 fi

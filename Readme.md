@@ -45,7 +45,7 @@ git clone https://github.com/longyan/phiwrapper_binaries tools
 
 ### 配置
 
-复制config.js.example未config.js, 参照文件内容创建配置
+复制config.js.example为config.js, 参照文件内容创建配置
 
 ### 打包
 

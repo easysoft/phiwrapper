@@ -8,7 +8,7 @@ phiwrapper now support Windows 7+ and linux on x86_64 and macOS on x86_64, this 
 
 ## TODOs && WIPs
 
-- [ ] zip.js -- zip.js is WIP, you need pack bins and code dir into build/build.zip youself.
+- [x] zip.js -- zip.js is WIP, you need pack bins and code dir into build/build.zip youself.
 - [ ] cliargs, cleanup, sudo/runas...
 - [ ] tests and continuous test
 - [ ] x86 unix-like compatibility

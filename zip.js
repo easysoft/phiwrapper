@@ -19,12 +19,52 @@ limitations under the License.
 */
 (function (){
     function wshzip(dest, dlist){
-        println("wshzip", dlist, "to", dest);
+        println("creating zip archive");
+        // TODO: -9 -> modifiable
+        // TODO: arch-specific
+        var cmd = ".\\tools\\zip.x86.exe -9 " + dest + " " + dlist.join(" ");
+        try{
+            exec(cmd);
+        }catch(e){
+            if (e.number == -2147024894){
+                println("no zip binary found, skipping zip");
+                return;
+            }else{
+                println("failed to execute " + cmd +", skiping");
+                //println(e);
+                return;
+            }
+        }
     }
     function nodezip(dest, dlist){
-        println("nodezip", dlist, "to", dest);
-        var zlib = require("zlib");
+        var binname, cmd;
+        println("creating zip archive");
+        switch(os.platform()){
+            case "win32":
+                binname = "zip.x86.exe";
+                break;
+            case "linux":
+                switch(os.arch()){
+                    case "x64":
+                        binname = "zip.x64.linux";
+                        break;
+                }
+                break;
+        }
+        // TODO: -9 -> modifiable
+        if(!binname){
+            println("this platform is not supported, trying \"zip\" command");
+            cmd = "zip -9 " + dest + " " + dlist.join(" ");
+        }else{
+            cmd = "." + path.sep + "tools" + path.sep + binname + " -9 " + dest + " " + dlist.join(" ");
+        }
         
+        try{
+            exec(cmd);
+        }catch(e){
+            println("failed to execute " + cmd +", skiping");
+            //println(e);
+        }
     }
     if("wsh" == runtime){
         return {
@@ -35,5 +75,4 @@ limitations under the License.
             "zip" : nodezip
         };
     }
-    
 }())

@@ -2,4 +2,4 @@
 
 SET "interpreter=cscript.exe /nologo"
 where node.exe > NUL && set "interpreter=node.exe"
-%interpreter% wrapperwrapper.js && cmd /c build\concat.bat
+%interpreter% wrapperwrapper.js

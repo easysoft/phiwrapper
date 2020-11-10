@@ -20,7 +20,7 @@ limitations under the License.
 
 'use strict';
 
-var println, runtime, readtext, filesize, writetext, listdir, concat;
+var println, runtime, readtext, filesize, writetext, listdir, concat, exec;
 
 if(typeof WScript !== 'undefined'){
     runtime = "wsh";
@@ -117,8 +117,29 @@ if(typeof WScript !== 'undefined'){
         for(var file= new Enumerator(files); !file.atEnd(); file.moveNext()){
             ret.push(file.item().Name);
         }
-        return ret
+        return ret;
     };
+
+    exec = function(cmd){
+        var ret = WshShell.Exec(cmd);
+        while (ret.Status == 0){
+            WScript.Sleep(100);
+        }
+        return ret;
+    }
+
+    concat = function(files, dest){
+        println("concatenating batsh and bins");
+        try{
+            exec("CMD /C COPY /b " + (files.join(" + ") + " " + dest).replace(/\//g,"\\"));
+        }catch(e){
+            println("concat failed");
+            println("COPY /b " + (files.join(" + ") + " " + dest).replace(/\//g,"\\"))
+            println(e)
+        }
+        println(dest + " generated");
+    }
+
     // shabby polyfills and shims
     String.prototype.endsWith = function(s) {
         return s == "" || this.indexOf(s) == this.length - s.length;
@@ -197,6 +218,9 @@ if(typeof WScript !== 'undefined'){
 
 }else if(typeof module !== 'undefined' && module.exports){
     var fs=require("fs");
+    var child_process = require("child_process");
+    var os = require("os");
+    var path = require("path");
     runtime = "node";
     println=console.log;
     readtext = function(fn){
@@ -212,6 +236,18 @@ if(typeof WScript !== 'undefined'){
         }catch(e){
             return -1;
         }
+    };
+    exec = child_process.execSync;
+    concat = function(files, dest){
+        println("concatenating batsh and bins");
+        var deststream = fs.createWriteStream(dest, {mode: 493/*0o755*/});
+        files.map(function(item){
+            var srcstream = fs.createReadStream(item);
+            srcstream.pipe(deststream);
+            srcstream.close();
+        });
+        deststream.close();
+        println(dest + " generated");
     };
 }else{
     // yet only wsh or node
@@ -373,10 +409,10 @@ for (var sk in shvarsmap){
 }
 
 var splitermap = [
-    ["x86_64", "linux", "elfx64"],
-    ["x86_64", "fbsd", "elfx64"],
-    ["arm64", "fbsd", "elfaa64"],
-    ["arm64", "linux", "elfaa64"],
+    ["x86_64", "linux", "elf0x64"],
+    ["x86_64", "fbsd", "elf9x64"],
+    ["arm64", "fbsd", "elf0aa64"],
+    ["arm64", "linux", "elf9aa64"],
     ["x86_64", "darwin", "darwin"]
 ];
 var usespliters = [];
@@ -411,14 +447,4 @@ var filelist = ["build/wrapper.batsh"]
     .concat(binused.map(function(x){return "tools/"+x;}))
     .concat(["build/build.zip"])
     .concat(["build/heredoctail"]);
-writetext("build/concat.bat",
-    ": < batpart\n\r\n@ECHO OFF\r\n"+
-    "COPY /b "+ filelist.join(" + ").replace(/\//g,"\\") +
-        " "+ "build\\wrapped.bat" + // TODO: configurable path
-        "\r\n"+
-    "EXIT\r\n" +
-    "batpart\n"+
-    "cat " + filelist.join(" ") + " > " + "build/wrapped.bat\n"
-)
-
-println("done");
+concat(filelist, "build/wrapped.bat");

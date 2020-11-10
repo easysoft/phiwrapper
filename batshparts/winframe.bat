@@ -1,5 +1,5 @@
 
-: @ECHO OFF
+@ECHO OFF
 {if(config.prependHashbang) trawfile("hashbangdontpanic.bat")}
 
 : TODO: configurable

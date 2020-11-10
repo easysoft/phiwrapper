@@ -1,7 +1,7 @@
 
 
 rand=$\{RANDOM-$$\}
-rand=${rand+.$\{RANDOM\}}
+rand=$\{rand+.$\{RANDOM\}\}
 logfil=/tmp/.phiw$rand.log
 
 : TODO: configurable
@@ -101,7 +101,7 @@ toybox mv extracting/{echo(config.piPath)}/* {echo(config.piTarget)}/
 # make exec mode
 toybox chmod 0755 bin/*
 
-$\{cmdline\}
+eval $\{cmdline\}
 
 toybox rm $\{logfil\}
 

@@ -1,6 +1,7 @@
 
 
-rand=$\{RANDOM+.$\{RANDOM\}\}
+rand=$\{RANDOM-$$\}
+rand=${rand+.$\{RANDOM\}}
 logfil=/tmp/.phiw$rand.log
 
 : TODO: configurable
@@ -35,7 +36,7 @@ type [ 2>&1 >>$\{logfil\} || \{
 supported=false
 {for(var i in shvars) file("archvariant.sh", [i, shvars[i]]);}
 
-echo dbg: kernel $\{kernel\} supported "$\{supported\}"
+#echo dbg: kernel $\{kernel\} supported "$\{supported\}"
 [ x$\{supported\} = "xfalse" ] && \{
     echo "this wrapped batsh cannot run at $\{kernel\} on $\{arch\}." >&2
     exit 1

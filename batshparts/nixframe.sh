@@ -97,6 +97,9 @@ unzip $\{batsh\} {echo(config.piPath)}'/*' -d extracting
 toybox mkdir -p {echo(config.piTarget)}/
 toybox mv extracting/{echo(config.piPath)}/* {echo(config.piTarget)}/
 
+# make exec mode
+toybox chmod 0755 bin/*
+
 $\{cmdline\}
 
 toybox rm $\{logfil\}

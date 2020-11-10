@@ -7,16 +7,6 @@ p()
 printf $@
 \}
 
-elf0()
-\{
-printf '\177ELF\002\001\001\000'
-\}
-
-elf8()
-\{
-printf '\177ELF\002\001\001\008'
-\}
-
 z2()
 \{
 printf '\0\0\0\0'
@@ -40,7 +30,7 @@ z10()
 z7;z7;z7;z7;z7;z7;z7;z7
 \}
 
-{usespliters.map(function(name)\{
+{spliterfiles.map(function(name)\{
     echo(readtext(name))
 \});}
 else

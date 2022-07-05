@@ -1,14 +1,44 @@
 
 
-rand=$\{RANDOM-$$\}
-rand=$\{rand+.$\{RANDOM\}\}
-logfil=/tmp/.phiw$rand.log
+test_ts() \{
+    dst_file=$1
+    src_file=$2
+    
+    if [ ! -e $\{dst_file\} ];  then
+        return 1
+    fi
+
+    dst_ts=$(stat -c %Y $\{dst_file\})
+    src_ts=$(stat -c %Y $\{src_file\})
+
+    ret=$(($((dst_ts))-$((src_ts))))
+    return $\{ret#-\}
+\}
+modify_ts_as_src_file() \{
+    dst_file=$1
+    src_file=$2
+    
+    dst_ts=$(stat -c %Y $\{dst_file\})
+    src_ts=$(stat -c %Y $\{src_file\})
+    date_fmt="+%Y%m%d%H%M.%S"
+    src_date=$(date -d @$\{src_ts\} $\{date_fmt\})
+
+    touch -c -t $\{src_date\} $\{dst_file\}
+\}
+# extract toybox first
+phiwtemp=~/ztool
+#  since not exit at above, it's ok no check here
+if [ ! -d $\{phiwtemp\} ]; then \
+mkdir -p $\{phiwtemp\}
+fi
+
+logfil=$\{phiwtemp\}/phiw-$(date +%Y-%m-%d).log
 
 : TODO: configurable
 echo "phiwrapper wrapped batsh at shell"
 
 echo "" >>$\{logfil\} || \{
-    echo "can't write /tmp things (logfile), exiting" >&2
+    echo "can't write /tmp things (logfile: $logfil), exiting" >&2
     exit 1
 \}
 
@@ -51,6 +81,7 @@ then
     partcp()
     \{
         dd if=$1 of=$2 $ddskip=$3 bs=1 count=$4
+        modify_ts_as_src_file $2 $1
         chmod 0755 $2
     \}
 {if(usespliters.length>0) file("usespliter.sh")}
@@ -59,60 +90,50 @@ else
     exit 1
 fi
 
-# extract toybox first
-phiwtemp=/tmp/.phiw$\{rand\}
-#  assume we dont have mkdir -p
-mkdir /tmp 2>&1 >>$\{logfil\}
-mkdir $\{phiwtemp\} || \{
-    echo "cannot create phiwrapper tempdir $\{phiwtemp\}, is another phiwrapper running without \$RANDOM builtin bash variable?" >&2
-    exit 1
-\}
-#  since not exit at above, it's ok no check here
-mkdir $\{phiwtemp\}/bin
-partcp $0 $\{phiwtemp\}/bin/toybox $\{tboffset\} $\{tbsize\}
+bin_toybox=$\{phiwtemp\}/$\{pspath\}toybox
+bin_unzip=$\{phiwtemp\}/$\{pspath\}unzip
+bin_command=$\{phiwtemp\}/$\{pspath\}$cmdline
 
-# change to phiwtemp
-export PATH=$\{phiwtemp\}/bin:$\{PATH\}
-batsh=`toybox realpath $0`
-cd $phiwtemp || \{
-    echo "cannot cd to phiwrapper tempdir $\{phiwtemp\}, that's strange" >&2
-    exit 1
-\}
+if [ ! -d $\{phiwtemp\}/$\{pspath\} ]; then \
+mkdir -p $\{phiwtemp\}/$\{pspath\}
+fi
 
+# test toybox
+test_ts $\{bin_toybox\} $0
+ts=$?
+if [ $\{ts\} != 0 ]; then
+    partcp $0 $\{bin_toybox\} $\{tboffset\} $\{tbsize\}
+fi
+
+batsh=`$\{bin_toybox\} realpath $0`
 # extract unzip
-if [ x$\{uzoffset\} != "x" ] && [ x$\{uzsize\} != "x" ]
+# test unzip
+test_ts $\{bin_unzip\} $0
+ts=$?
+if [ $\{ts\} != 0 ] && [ x$\{uzoffset\} != "x" ] && [ x$\{uzsize\} != "x" ]
 then
-    partcp $\{batsh\} bin/unzip $\{uzoffset\} $\{uzsize\}
+    partcp $\{batsh\} $\{bin_unzip\} $\{uzoffset\} $\{uzsize\}
 fi
 
 # remove spliter if exist
-[ x$\{sptmp\} != "x" ] && toybox rm $\{sptmp\}
+[ x$\{sptmp\} != "x" ] && $\{bin_toybox\} rm $\{sptmp\}
 
 # extract ps things
-unzip $\{batsh\} $\{pspath\}'/*' -d extracting
-toybox mkdir -p {echo(config.psTarget)}/
-toybox mv extracting/$\{pspath\}/* {echo(config.psTarget)}/
-
+# teset ps etc...
+test_ts $\{bin_command\} $0
+ts=$?
+if [ $\{ts\} != 0 ]; then
+$\{bin_unzip\} -o $\{batsh\} $\{pspath\}'*' -d $\{phiwtemp\}
+modify_ts_as_src_file $\{bin_command\} $0
 # extract pi things
-unzip $\{batsh\} {echo(config.piPath)}'/*' -d extracting
-toybox mkdir -p {echo(config.piTarget)}/
-toybox mv extracting/{echo(config.piPath)}/* {echo(config.piTarget)}/
-
+$\{bin_unzip\} -o $\{batsh\} {echo(config.piPath)}'*' -d $\{phiwtemp\}
+fi
 # make exec mode
-toybox chmod 0755 bin/*
+$\{bin_toybox\} chmod 0755 $\{phiwtemp\}/$\{pspath\}/*
 
-eval $\{cmdline\}
+eval $\{phiwtemp\}/$\{pspath\}$cmdline
 
-toybox rm $\{logfil\}
-
-# TODO: configurable ask
-while [ x$\{answer\} != xy ] && [ x$\{answer\} != xn ]
-do
-    echo "shall we remove all phiwrapper temp files? [y/n] "
-    read answer
-done
-# fixme: refuse removing important files
-[ x$\{answer\} = xy ] && toybox rm -rf .
+$\{bin_toybox\} rm $\{logfil\}
 
 exit
 : << IAMEND

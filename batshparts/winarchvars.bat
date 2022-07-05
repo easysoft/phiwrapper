@@ -1,8 +1,8 @@
-IF %arch%=={echo(v.archname)} (
-    SET "uzoffset={batshoffset(v.uzoffset)}"
-    SET "uzsize={echo(v.uzsize)}"
-    SET "cmdline={echo(v.cmdline)}"
-    SET "pspath={echo(v.pspath)}"
-    SET "winpspath={echo(v.pspath.replace("/", "\\"))}"
-    SET "archsupport=ok"
-)
+if ($arch -eq \"{echo(v.archname)}\") \{ ^
+    $uzoffset={batshoffset(v.uzoffset)}; ^
+    $uzsize={echo(v.uzsize)}; ^
+    $cmdline=\"{echo(v.cmdline)}\"; ^
+    $pspath=\"{echo(v.pspath)}\"; ^
+    $winpspath=\"{echo(v.pspath.replace("/", "\\"))}\"; ^
+    $archsupport=$true; ^
+\}

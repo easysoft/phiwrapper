@@ -6,37 +6,42 @@
 ECHO phiwrapper wrapped batsh at cmd
 
 {trawfile("winarchcheck.bat")}
-
-REM make up variables used later
-{for(var i=0; i<winvars.length; i++)\{file("winarchvars.bat", winvars[i])\}}
-IF NOT %archsupport%==ok ( ECHO not support Windows on %arch% arch, exiting. && EXIT )
-
-REM accuire an unique temp dir path
-:uniqLoop
-SET "phiwTemp={echo(config.winTempDir)}"
-IF EXIST "%phiwTemp%" GOTO :uniqLoop
-
-REM create bin dir for unzip.exe
-MKDIR %phiwTemp%\bin &&^
-
-SET "selfpath=%~dpnx0" &&^
+{for(var i=0; i<winvars.length; i++)\{file("winarchvars.bat", winvars[i])\}} ^
+if (!$archsupport) \{ Write-Output "not support Windows on $arch arch, exiting."; EXIT; \} ^
+function test_ts ^
+\{ ^
+    Param([string] $dst_file); ^
+    if (Test-Path $dst_file) \{ ^
+        $src_date=Get-ItemProperty -Path $selfpath -Name LastWriteTime; ^
+        $dst_date=Get-ItemProperty -Path $dst_file -Name LastWriteTime; ^
+        $src_date=$src_date.LastWriteTime; ^
+        $dst_date=$dst_date.LastWriteTime; ^
+        $duration=New-TimeSpan -Start $dst_date -End $src_date;  ^
+        $d=$duration.Days; ^
+        $h=$duration.Hours; ^
+        $m=$duration.Minutes; ^
+        $s=$duration.Seconds; ^
+        return [int]$d*24*60*60+$h*60*60+$m*60+$s; ^
+    \} else \{ ^
+        return [int]1; ^
+    \} ^
+    return [int]0; ^
+\}; ^
+$phiwTemp=$env:LOCALAPPDATA+\"/ztool/\"; ^
+$phiwTempbin=$phiwTemp+\"bin/\";^
+$isPathExist=Test-Path $phiwTempbin; ^
+if ($isPathExist -ne \"True\") \{ mkdir $phiwTempbin; \} ^
+$selfpath='%~dpnx0';^
 {rawfile("winsplit.bat")}
-
-CD %phiwTemp% &&^
-SET "Path=%phiwTemp%\bin;%Path%"
-
-REM unzip psfiles
-unzip.exe %selfpath% %pspath%/* -d extracting
-MOVE extracting\%winpspath%\* {echo(config.psTarget.replace("/", "\\"))}
-
-REM unzip pifiles
-unzip.exe %selfpath% {echo(config.piPath)}/* -d extracting
-MOVE {echo("extracting\\")}{echo(config.piPath.replace("/", "\\"))}\* {echo(config.piTarget.replace("/", "\\"))}
-
-REM run target
-%cmdline% &&^
-
-REM clean
-REM TODO: cli args
-RD /S /Q %phiwTemp%
-EXIT
+$phiwTemp_psPath=$phiwTemp+$pspath; ^
+$isPathExist=Test-Path $phiwTemp_psPath; ^
+if ($isPathExist -ne \"True\") \{ mkdir $phiwTemp_psPath; \} ^
+$bin_exe=$phiwTemp_psPath+$config.piPath+$cmdline; ^
+$test_bin_ret=test_ts $bin_exe; ^
+if ($test_bin_ret -ne 0) \{ ^
+taskkill /f /t /im \"$cmdline\"; ^
+cmd /c $unzip_exe -o \"$selfpath\" \"$pspath*\" -d \"$phiwTemp\"; ^
+(Get-ItemProperty -Path $bin_exe).LastWriteTime=(Get-ItemProperty -Path $selfpath -Name LastWriteTime).LastWriteTime; ^
+\} ^
+cmd /c $bin_exe;
+goto :eof

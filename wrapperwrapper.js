@@ -19,7 +19,7 @@ limitations under the License.
 */
 
 'use strict';
-
+    
 var println, runtime, readtext, filesize, writetext, listdir, concat, exec;
 
 if(typeof WScript !== 'undefined'){
@@ -283,7 +283,8 @@ var winvarsmap = {
     "win_x86":{archname:"x86", uzfile:"unzip.x86.exe"},
     "win_x86_64":{archname:"AMD64", uzfile:"unzip.x86.exe"},
     "win_arm":{archname:"ARM", uzfile:"unzip.arm.exe"},
-    "win_arm64":{archname:"ARM64", uzfile:"unzip.arm64.exe"}
+    "win_arm64":{archname:"ARM64", uzfile:"unzip.arm64.exe"},
+    "win_armv7l":{archname:"ARMV7L", uzfile:"unzip.armv7l.exe"}
 };
 var shvarsmap = {
     "linux": {
@@ -296,6 +297,10 @@ var shvarsmap = {
             "arm64": {
                 unzip:"unzip.arm64.linux",
                 toybox:"toybox.arm64.linux"
+            },
+            "armv7l": {
+                unzip:"unzip.armv7l.linux",
+                toybox:"toybox.armv7l.linux"
             }
         }
     },
@@ -356,6 +361,7 @@ for (var k in winvarsmap){
 var unamemmap = {
     "x86_64": ["amd64", "x86_64"],
     "arm64": ["aarch64", "arm64"],
+    "armv7l": ["armv7l"],
     "x86": ["`echo $arch | ./bin/toybox grep -o 'i[3-6]86'`"] // fixme: use full map
 }
 
@@ -365,6 +371,7 @@ for (var sk in shvarsmap){
         var binsok = true;
         // check if we have all uz+tb bins
         for(var akfn in shvarsmap[sk].archfiles[ak]){
+            println(akfn);
             if(! bininfo[shvarsmap[sk].archfiles[ak][akfn]]){
                 binsok = false;
                 break;
@@ -372,10 +379,11 @@ for (var sk in shvarsmap){
         }
         if(config.psPaths[sk + "_" + ak] && // ps bin provided
             binsok ){// uz+tb bins provided
+            println("============", sk + "_" + ak, k);
             if(binused.indexOf(winvarsmap[k].uzfile) === -1){ // unique
                 // add all uz+tb bins
                 for(var akfn in shvarsmap[sk].archfiles[ak]){
-                    println("add",akfn,"for",sk,ak);
+                    println("add",akfn,"for",sk,ak, shvarsmap[sk].archfiles[ak][akfn]);
                     // add to binused
                     binused.push(shvarsmap[sk].archfiles[ak][akfn]);
                     // update offset
@@ -402,6 +410,8 @@ for (var sk in shvarsmap){
                     config.command[sk + "_"] ||
                     config.command.unixlike_
             };
+
+            println(ak, sk, shvarsmap[sk].unames, tbinfo.size, uzinfo.size);
         }
     }
 }
@@ -437,19 +447,35 @@ splitermap.map(function(sv){
 //println(winvars);
 //println(shvars);
 
-// start generation.
-var str = template.processbatsh(readtext("batshparts/frame.batsh"));
-writetext("build/wrapper.batsh", str);
+fs.access("build/wrapper.batsh", fs.constants.F_OK, (err) => {
+    if (!err) {
+        fs.unlinkSync("build/wrapper.batsh");
+    }
 
-zip.zip("build/build.zip",
-    Object.keys(config.psPaths)
-        .map(function(x){return config.psPaths[x] + "/*";})
-        .concat([config.piPath + "/*"])
-);
-writetext("build/heredoctail", "\nIAMEND\n"); // TODO: changable
+    fs.access("build/wrapped.bat", fs.constants.F_OK, (err) => {
+        if (!err) {
+            fs.unlinkSync("build/wrapped.bat");
+        }
 
-var filelist = ["build/wrapper.batsh"]
-    .concat(binused.map(function(x){return "tools/"+x;}))
-    .concat(["build/build.zip"])
-    .concat(["build/heredoctail"]);
-concat(filelist, "build/wrapped.bat");
+        // start generation.
+        println("#### start generation");
+        var str = template.processbatsh(readtext("batshparts/frame.batsh"));
+        writetext("build/wrapper.batsh", str);
+
+        println("#### build zip");
+        zip.zip("build/build.zip",
+            Object.keys(config.psPaths)
+                .map(function(x){return config.psPaths[x] + "/*";})
+                .concat([config.piPath + "/*"])
+        );
+        writetext("build/heredoctail", "\nIAMEND\n"); // TODO: changable
+
+        println("#### wrapper batsh");
+        var filelist = ["build/wrapper.batsh"]
+            .concat(binused.map(function(x){return "tools/"+x;}))
+            .concat(["build/build.zip"])
+            .concat(["build/heredoctail"]);
+        println("#### wrapped bat");
+        concat(filelist, "build/wrapped.bat");
+    });
+});

@@ -19,7 +19,7 @@ limitations under the License.
 */
 (function (){
     function wshzip(dest, dlist){
-        println("creating zip archive");
+        println("wsh: creating zip archive");
         // TODO: -9 -> modifiable
         // TODO: arch-specific
         var cmd = ".\\tools\\zip.x86.exe -9 " + dest + " " + dlist.join(" ");
@@ -38,7 +38,7 @@ limitations under the License.
     }
     function nodezip(dest, dlist){
         var binname, cmd;
-        println("creating zip archive");
+        println("node: creating zip archive");
         switch(os.platform()){
             case "win32":
                 binname = "zip.x86.exe";
@@ -52,6 +52,7 @@ limitations under the License.
                 break;
         }
         // TODO: -9 -> modifiable
+        println(binname);
         if(!binname){
             println("this platform is not supported, trying \"zip\" command");
             cmd = "zip -9 " + dest + " " + dlist.join(" ");

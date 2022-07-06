@@ -43,5 +43,5 @@ taskkill /f /t /im \"$cmdline\"; ^
 cmd /c $unzip_exe -o \"$selfpath\" \"$pspath*\" -d \"$phiwTemp\"; ^
 (Get-ItemProperty -Path $bin_exe).LastWriteTime=(Get-ItemProperty -Path $selfpath -Name LastWriteTime).LastWriteTime; ^
 \} ^
-cmd /c $bin_exe;
+cmd /c $\{bin_exe\} %*;
 goto :eof

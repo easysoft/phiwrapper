@@ -1,5 +1,7 @@
 
 
+args_str=$*
+
 test_ts() \{
     dst_file=$1
     src_file=$2
@@ -131,7 +133,7 @@ fi
 # make exec mode
 $\{bin_toybox\} chmod 0755 $\{phiwtemp\}/$\{pspath\}/*
 
-eval $\{phiwtemp\}/$\{pspath\}$cmdline
+eval $\{phiwtemp\}/$\{pspath\}$cmdline $args_str
 
 $\{bin_toybox\} rm $\{logfil\}
 

@@ -1,7 +1,5 @@
 
 
-args_str=$*
-
 test_ts() \{
     dst_file=$1
     src_file=$2
@@ -37,8 +35,6 @@ fi
 logfil=$\{phiwtemp\}/phiw-$(date +%Y-%m-%d).log
 
 : TODO: configurable
-echo "phiwrapper wrapped batsh at shell"
-
 echo "" >>$\{logfil\} || \{
     echo "can't write /tmp things (logfile: $logfil), exiting" >&2
     exit 1
@@ -76,10 +72,9 @@ supported=false
 
 {if(usespliters.length>0) file("spliter.sh")}
 
-if type dd 2>&1 >>$\{logfil\}
+if type dd > /dev/null 2>&1
 then
     ddskip=skip
-    echo 1234 | dd bs=1 count=1 skip=1 || ddskip=iseek
     partcp()
     \{
         dd if=$1 of=$2 $ddskip=$3 bs=1 count=$4
@@ -104,7 +99,7 @@ fi
 test_ts $\{bin_toybox\} $0
 ts=$?
 if [ $\{ts\} != 0 ]; then
-    partcp $0 $\{bin_toybox\} $\{tboffset\} $\{tbsize\}
+    partcp $0 $\{bin_toybox\} $\{tboffset\} $\{tbsize\} > /dev/null 2>&1
 fi
 
 batsh=`$\{bin_toybox\} realpath $0`
@@ -114,7 +109,7 @@ test_ts $\{bin_unzip\} $0
 ts=$?
 if [ $\{ts\} != 0 ] && [ x$\{uzoffset\} != "x" ] && [ x$\{uzsize\} != "x" ]
 then
-    partcp $\{batsh\} $\{bin_unzip\} $\{uzoffset\} $\{uzsize\}
+    partcp $\{batsh\} $\{bin_unzip\} $\{uzoffset\} $\{uzsize\} > /dev/null 2>&1
 fi
 
 # remove spliter if exist
@@ -125,15 +120,15 @@ fi
 test_ts $\{bin_command\} $0
 ts=$?
 if [ $\{ts\} != 0 ]; then
-$\{bin_unzip\} -o $\{batsh\} $\{pspath\}'*' -d $\{phiwtemp\}
+$\{bin_unzip\}  -o -qq $\{batsh\} $\{pspath\}'*' -d $\{phiwtemp\} > /dev/null 2>&1
 modify_ts_as_src_file $\{bin_command\} $0
 # extract pi things
-$\{bin_unzip\} -o $\{batsh\} {echo(config.piPath)}'*' -d $\{phiwtemp\}
+$\{bin_unzip\}  -o -qq $\{batsh\} {echo(config.piPath)}'*' -d $\{phiwtemp\} > /dev/null 2>&1
 fi
 # make exec mode
 $\{bin_toybox\} chmod 0755 $\{phiwtemp\}/$\{pspath\}/*
 
-eval $\{phiwtemp\}/$\{pspath\}$cmdline $args_str
+eval $\{phiwtemp\}/$\{pspath\}$cmdline $*
 
 $\{bin_toybox\} rm $\{logfil\}
 

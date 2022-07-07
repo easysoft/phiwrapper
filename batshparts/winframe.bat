@@ -2,9 +2,6 @@
 @ECHO OFF
 {if(config.prependHashbang) trawfile("hashbangdontpanic.bat")}
 
-: TODO: configurable
-ECHO phiwrapper wrapped batsh at cmd
-
 {trawfile("winarchcheck.bat")}
 {for(var i=0; i<winvars.length; i++)\{file("winarchvars.bat", winvars[i])\}} ^
 if (!$archsupport) \{ Write-Output "not support Windows on $arch arch, exiting."; EXIT; \} ^
@@ -39,8 +36,8 @@ if ($isPathExist -ne \"True\") \{ mkdir $phiwTemp_psPath; \} ^
 $bin_exe=$phiwTemp_psPath+$config.piPath+$cmdline; ^
 $test_bin_ret=test_ts $bin_exe; ^
 if ($test_bin_ret -ne 0) \{ ^
-taskkill /f /t /im \"$cmdline\"; ^
-cmd /c $unzip_exe -o \"$selfpath\" \"$pspath*\" -d \"$phiwTemp\"; ^
+taskkill /f /t /im \"$cmdline\" 2>nul; ^
+cmd /c $unzip_exe -o -qq \"$selfpath\" \"$pspath*\" -d \"$phiwTemp\"; ^
 (Get-ItemProperty -Path $bin_exe).LastWriteTime=(Get-ItemProperty -Path $selfpath -Name LastWriteTime).LastWriteTime; ^
 \} ^
 cmd /c $\{bin_exe\} %*;

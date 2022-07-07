@@ -1,5 +1,4 @@
-{if(config.prependHashbang) echo("#!/bin/sh\n")}
-: << BATCHPART{echo("\n\r\n")}
+{if(config.prependHashbang) echo("#!/bin/sh\n")} : << BATCHPART{echo("\n\r\n")}
 : this is phiwrapper bat/shell multi-use script
 
 {file("winframe.bat")}

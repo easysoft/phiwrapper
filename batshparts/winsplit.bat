@@ -1,5 +1,5 @@
 $unzip_exe=$phiwTempbin+\"unzip.exe\"; ^
-$test_unzip_ret=test_ts $unzip_exe; ^
+$test_unzip_ret=test_ts \"$unzip_exe\" \"$selfpath\"; ^
 if ($test_unzip_ret -ne 0) { ^
     $fi=[System.IO.File]::OpenRead($selfpath);^
     $fo=[System.IO.File]::OpenWrite($unzip_exe);^

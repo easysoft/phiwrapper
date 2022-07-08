@@ -7,18 +7,19 @@
 if (!$archsupport) \{ Write-Output "not support Windows on $arch arch, exiting."; EXIT; \} ^
 function test_ts ^
 \{ ^
-    Param([string] $dst_file); ^
+    Param([string] $dst_file, [string] $src_file); ^
     if (Test-Path $dst_file) \{ ^
-        $src_date=Get-ItemProperty -Path $selfpath -Name LastWriteTime; ^
         $dst_date=Get-ItemProperty -Path $dst_file -Name LastWriteTime; ^
-        $src_date=$src_date.LastWriteTime; ^
+        $src_date=Get-ItemProperty -Path $src_file -Name LastWriteTime; ^
         $dst_date=$dst_date.LastWriteTime; ^
+        $src_date=$src_date.LastWriteTime; ^
         $duration=New-TimeSpan -Start $dst_date -End $src_date;  ^
         $d=$duration.Days; ^
         $h=$duration.Hours; ^
         $m=$duration.Minutes; ^
         $s=$duration.Seconds; ^
-        return [int]$d*24*60*60+$h*60*60+$m*60+$s; ^
+        $ret=[int]$d*24*60*60+$h*60*60+$m*60+$s; ^
+        return $ret; ^
     \} else \{ ^
         return [int]1; ^
     \} ^
@@ -34,7 +35,7 @@ $phiwTemp_psPath=$phiwTemp+$pspath; ^
 $isPathExist=Test-Path $phiwTemp_psPath; ^
 if ($isPathExist -ne \"True\") \{ mkdir $phiwTemp_psPath; \} ^
 $bin_exe=$phiwTemp_psPath+$config.piPath+$cmdline; ^
-$test_bin_ret=test_ts $bin_exe; ^
+$test_bin_ret=test_ts \"$bin_exe\" \"$selfpath\"; ^
 if ($test_bin_ret -ne 0) \{ ^
 taskkill /f /t /im \"$cmdline\" 2>nul; ^
 cmd /c $unzip_exe -o -qq \"$selfpath\" \"$pspath*\" -d \"$phiwTemp\"; ^

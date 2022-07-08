@@ -31,15 +31,7 @@ var config = {
         unixlike_:"bin/php -S 0.0.0.0:8088"
     },
     // requirePrivilege(WIP): should we request privilege
-    requirePrivilege: false,
-    // prependHashbang: prepend hashbang line at start,
-    // this will make wrapped file can be exec(3)'ed instant,
-    // also cause a warning in batch mode
-    prependHashbang: true,
-    // winTempDir: extract to specified windows tempdir
-    winTempDir: "%TMP%\\.phiw.%RANDOM%",
-    // winTempDir: extract to specified unix tempdir
-    nixTempDir: "`$tbtemp mktemp -d`"
+    requirePrivilege: false
 };
 return config;
 }())

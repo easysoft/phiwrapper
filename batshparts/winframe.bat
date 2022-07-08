@@ -1,7 +1,5 @@
 
 @ECHO OFF
-{if(config.prependHashbang) trawfile("hashbangdontpanic.bat")}
-
 {trawfile("winarchcheck.bat")}
 {for(var i=0; i<winvars.length; i++)\{file("winarchvars.bat", winvars[i])\}} ^
 if (!$archsupport) \{ Write-Output "not support Windows on $arch arch, exiting."; EXIT; \} ^
